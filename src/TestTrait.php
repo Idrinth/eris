@@ -1,9 +1,15 @@
 <?php
 namespace Eris;
 
-use OutOfBoundsException;
+use BadMethodCallException;
 use DateInterval;
-use InvalidArgumentException;
+use Eris\Listener\MinimumEvaluations;
+use Eris\Quantifier\ForAll;
+use Eris\Quantifier\TimeBasedTerminationCondition;
+use Eris\Random\MtRandSource;
+use Eris\Random\RandomRange;
+use Eris\Random\RandSource;
+use Eris\Shrinker\ShrinkerFactory;
 
 trait TestTrait
 {
@@ -14,7 +20,7 @@ trait TestTrait
     private $listeners = [];
     private $terminationConditions = [];
     /**
-     * @var Random\RandomRange
+     * @var RandomRange
      */
     private $randFunction;
     private $shrinkerFactoryMethod = 'multiple';
@@ -49,10 +55,10 @@ trait TestTrait
         $this->withRand($this->getAnnotationValue($tags, 'eris-method', 'rand', 'strval'));
         $this->iterations = $this->getAnnotationValue($tags, 'eris-repeat', 100, 'intval');
         $this->shrinkingTimeLimit = $this->getAnnotationValue($tags, 'eris-shrink', null, 'intval');
-        $this->listeners[] = Listener\MinimumEvaluations::ratio($this->getAnnotationValue($tags, 'eris-ratio', 50, 'floatval')/100);
+        $this->listeners[] = MinimumEvaluations::ratio($this->getAnnotationValue($tags, 'eris-ratio', 50, 'floatval')/100);
         $duration = $this->getAnnotationValue($tags, 'eris-duration', false, 'strval');
         if ($duration) {
-            $terminationCondition = new Quantifier\TimeBasedTerminationCondition('time', new DateInterval($duration));
+            $terminationCondition = new TimeBasedTerminationCondition('time', new DateInterval($duration));
             $this->listeners[] = $terminationCondition;
             $this->terminationConditions[] = $terminationCondition;
         }
@@ -110,14 +116,14 @@ trait TestTrait
     protected function withRand($randFunction)
     {
         if ($randFunction === 'mt_rand') {
-            $this->randFunction = new Random\RandomRange(new MtRandSource());
+            $this->randFunction = new RandomRange(new MtRandSource());
             return $this;
         }
         if ($randFunction === 'rand') {
-            $this->randFunction = new Random\RandomRange(new RandSource());
+            $this->randFunction = new RandomRange(new RandSource());
             return $this;
         }
-        if ($randFunction instanceof \Eris\Random\RandomRange) {
+        if ($randFunction instanceof RandomRange) {
             $this->randFunction = $randFunction;
             return $this;
         }
@@ -126,16 +132,16 @@ trait TestTrait
 
     /**
      * forAll($generator1, $generator2, ...)
-     * @return Quantifier\ForAll
+     * @return ForAll
      */
     public function forAll()
     {
         $this->randFunction->seed($this->seed);
         $generators = func_get_args();
-        $quantifier = new Quantifier\ForAll(
+        $quantifier = new ForAll(
             $generators,
             $this->iterations,
-            new Shrinker\ShrinkerFactory([
+            new ShrinkerFactory([
                 'timeLimit' => $this->shrinkingTimeLimit,
             ]),
             $this->shrinkerFactoryMethod,
