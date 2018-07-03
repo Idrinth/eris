@@ -1,17 +1,20 @@
 <?php
 namespace Eris\Listener;
 
-use Eris\Generator\GeneratedValueSingle;
+use PHPUnit\Framework\TestCase;
 
-class LogTest extends \PHPUnit_Framework_TestCase
+class LogTest extends TestCase
 {
+    private $timezone;
     protected function setUp()
     {
-        $this->file = '/tmp/eris-log-unit-test.log';
+        $this->timezone = date_default_timezone_get();
+        $this->file = sys_get_temp_dir().'/eris-log-unit-test.log';
         $this->time = function () {
             return 1300000000;
         };
         $this->log = new Log($this->file, $this->time, 1234);
+        date_default_timezone_set('UTC');
     }
 
     public function tearDown()
