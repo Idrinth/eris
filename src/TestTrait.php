@@ -13,8 +13,10 @@ trait TestTrait
     private $iterations = 100;
     private $listeners = [];
     private $terminationConditions = [];
-    private $randFunction = 'rand';
-    private $seedFunction = 'srand';
+    /**
+     * @var Random\RandomRange
+     */
+    private $randFunction;
     private $shrinkerFactoryMethod = 'multiple';
     protected $seed;
     protected $shrinkingTimeLimit;
@@ -107,31 +109,19 @@ trait TestTrait
      */
     protected function withRand($randFunction)
     {
-        // TODO: invert and wrap rand, srand into objects?
-        if ($randFunction instanceof \Eris\Random\RandomRange) {
-            $this->randFunction = function ($lower = null, $upper = null) use ($randFunction) {
-                return $randFunction->rand($lower, $upper);
-            };
-            $this->seedFunction = function ($seed) use ($randFunction) {
-                return $randFunction->seed($seed);
-            };
+        if ($randFunction === 'mt_rand') {
+            $this->randFunction = new Random\RandomRange(new MtRandSource());
             return $this;
         }
-        if (is_callable($randFunction)) {
-            switch ($randFunction) {
-                case 'rand':
-                    $seedFunction = 'srand';
-                    break;
-                case 'mt_rand':
-                    $seedFunction = 'mt_srand';
-                    break;
-                default:
-                    throw new BadMethodCallException("When specifying random generators different from the standard ones, you must also pass a \$seedFunction callable that will be called to seed it.");
-            }
-            $this->randFunction = $randFunction;
-            $this->seedFunction = $seedFunction;
+        if ($randFunction === 'rand') {
+            $this->randFunction = new Random\RandomRange(new RandSource());
+            return $this;
         }
-        return $this;
+        if ($randFunction instanceof \Eris\Random\RandomRange) {
+            $this->randFunction = $randFunction;
+            return $this;
+        }
+        throw new BadMethodCallException("When specifying random generators different from the standard ones, you must also pass a \$seedFunction callable that will be called to seed it.");
     }
 
     /**
@@ -140,7 +130,7 @@ trait TestTrait
      */
     public function forAll()
     {
-        call_user_func($this->seedFunction, $this->seed);
+        $this->randFunction->seed($this->seed);
         $generators = func_get_args();
         $quantifier = new Quantifier\ForAll(
             $generators,

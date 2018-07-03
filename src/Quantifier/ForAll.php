@@ -29,10 +29,14 @@ class ForAll
     private $terminationConditions = [];
     private $listeners = [];
     private $shrinkerFactoryMethod;
+
+    /**
+     * @var RandomRange
+     */
     private $rand;
     private $shrinkingEnabled = true;
 
-    public function __construct(array $generators, $iterations, $shrinkerFactory, $shrinkerFactoryMethod, $rand)
+    public function __construct(array $generators, $iterations, $shrinkerFactory, $shrinkerFactoryMethod, \Eris\Random\RandomRange $rand)
     {
         $this->generators = $this->generatorsFrom($generators);
         $this->iterations = $iterations;
