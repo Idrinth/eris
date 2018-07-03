@@ -1,9 +1,7 @@
 <?php
 namespace Eris\Listener;
 
-use PHPUnit\Framework\TestCase;
-
-class LogTest extends TestCase
+class LogTest extends \PHPUnit_Framework_TestCase
 {
     private $timezone;
     protected function setUp()

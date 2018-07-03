@@ -171,8 +171,7 @@ class ForAll
             }
         } catch (Exception $e) {
             $redTestException = $e;
-            $wrap = (bool) getenv('ERIS_ORIGINAL_INPUT');
-            if ($wrap) {
+            if ((bool) getenv('ERIS_ORIGINAL_INPUT')) {
                 $message = "Original input: " . var_export($values, true) . PHP_EOL
                     . "Possibly shrinked input follows." . PHP_EOL;
                 throw new RuntimeException($message, -1, $e);
