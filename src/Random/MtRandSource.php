@@ -10,7 +10,7 @@ class MtRandSource implements Source
      */
     public function extractNumber()
     {
-        return mt_rand(0, $this->rand());
+        return mt_rand(0, $this->max());
     }
 
     /**
