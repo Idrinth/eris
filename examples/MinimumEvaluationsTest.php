@@ -20,7 +20,7 @@ class MinimumEvaluationsTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @eris-ration 1
+     * @eris-ratio 1
      */
     public function testPassesBecauseOfTheArtificiallyLowMinimumEvaluationRatio()
     {

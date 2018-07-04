@@ -227,7 +227,7 @@ class ExampleEnd2EndTest extends \PHPUnit_Framework_TestCase
         $this->runExample('AlwaysFailsTest.php');
         $result = $this->results->testsuite->testcase;
         $output = (string) $result->{"system-out"};
-        if (!preg_match('/ERIS_SEED=([0-9]+)/', $output, $matches)) {
+        if (!preg_match('/ERIS_SEED=(-?[0-9]+)/', $output, $matches)) {
             $this->fail("Cannot find ERIS_SEED in output to rerun the test deterministically: " . var_export($output, true));
         }
         $this->setEnvironmentVariable('ERIS_SEED', $matches[1]);
@@ -278,7 +278,8 @@ class ExampleEnd2EndTest extends \PHPUnit_Framework_TestCase
         $logFile = tempnam(sys_get_temp_dir(), 'phpunit_log_');
         $environmentVariables = [];
         foreach ($this->environment as $name => $value) {
-            $environmentVariables[] .= "$name=$value";
+            $var = "$name=$value";
+            $environmentVariables[] = DIRECTORY_SEPARATOR==='\\' ? "set $var;" : $var;
         }
         $bin = "vendor".DIRECTORY_SEPARATOR."bin".DIRECTORY_SEPARATOR."phpunit";
         $phpunitCommand = implode(" ", $environmentVariables) . " $bin --log-junit $logFile $samplesTestCase";

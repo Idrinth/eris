@@ -31,9 +31,6 @@ class MersenneTwisterTest extends \PHPUnit_Framework_TestCase
      */
     public function testGeneratesTheSameSequenceAsThePythonOracle($seed, $sample)
     {
-        if (!is_executable("python")) {
-            $this->markTestSkipped("no python avaible to compare to.");
-        }
         $twister = new MersenneTwister();
         $twister->seed($seed);
         $numbers = [];
