@@ -44,7 +44,10 @@ trait TestTrait
      */
     public function erisSetup()
     {
-        $this->seed = getenv('ERIS_SEED') ?: (int) (microtime(true)*1000000);
+        $this->seed = intval(getenv('ERIS_SEED') ?: (microtime(true)*1000000));
+        if ($this->seed < 0) {
+            $this->seed *= -1;
+        }
         $this->listeners = array_filter(
             $this->listeners,
             function ($listener) {
